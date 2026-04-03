@@ -196,15 +196,9 @@ export default function DoarPage() {
 
       <section className="flex-1 max-w-xl mx-auto w-full px-4 py-6">
         <form onSubmit={onSubmit} noValidate>
-          <div className={step === 1 ? 'block' : 'hidden'}>
-            <Step1ProductForm data={formData} onChange={handleChange} errors={errors} />
-          </div>
-          <div className={step === 2 ? 'block' : 'hidden'}>
-            <Step2Photos data={formData} onChange={handleChange} errors={errors} />
-          </div>
-          <div className={step === 3 ? 'block' : 'hidden'}>
-            <Step3Location data={formData} onChange={handleChange} errors={errors} />
-          </div>
+          {step === 1 && <Step1ProductForm data={formData} onChange={handleChange} errors={errors} />}
+          {step === 2 && <Step2Photos data={formData} onChange={handleChange} errors={errors} />}
+          {step === 3 && <Step3Location data={formData} onChange={handleChange} errors={errors} />}
 
           <div className="mt-8 flex gap-3">
             {step > 1 && (
