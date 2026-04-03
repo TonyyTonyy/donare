@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductCategory {
+  CLOTHING
+  CLOTHING_MALE
+  CLOTHING_FEMALE
+  CLOTHING_KIDS
+  SHOES
+  FURNITURE
+  FURNITURE_LIVING
+  FURNITURE_BEDROOM
+  FURNITURE_KITCHEN
+  ELECTRONICS
+  ELECTRONICS_IT
+  ELECTRONICS_HOME
+  ELECTRONICS_AUDIO
+  BOOKS
+  TOYS
+  SPORTS
+  KITCHEN
+  DECORATION
+  OTHER
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  RESERVED
+  DONATED
+  CANCELLED
+  EXPIRED
+  REMOVED
+}
+
+enum ProductPickupType {
+  HOME
+  NEUTRAL_POINT
+  STORE
+  OTHER
+}
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  password String?
+  name     String
+  nickname String?
+  avatar   String?
+  bio      String? @db.Text
+
+  phone String? @unique
+  cpf   String? @unique
+
+  showRealName  Boolean @default(true)
+  showStats     Boolean @default(true)
+  showLocation  Boolean @default(true)
+  allowMessages Boolean @default(true)
+
+  currentActiveRequests   Int       @default(0)
+  maxSimultaneousRequests Int       @default(3)
+  lastDonationReceivedAt  DateTime?
+  cooldownEndsAt          DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  donatedProducts Product[] @relation("ProductDonor")
+
+  @@index([email])
+  @@map("users")
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  title       String
+  description String           @db.Text
+  category    ProductCategory
+  condition   ProductCondition
+  status      ProductStatus    @default(ACTIVE)
+
+  images            String[]
+  primaryImageIndex Int      @default(0)
+
+  size      String?
+  brand     String?
+  isWorking Boolean?
+
+  pickupType         ProductPickupType @default(NEUTRAL_POINT)
+  pickupAddress      String?
+  pickupCity         String?
+  pickupLatitude     Float?
+  pickupLongitude    Float?
+  pickupInstructions String?
+
+  donorId String
+  donor   User   @relation("ProductDonor", fields: [donorId], references: [id], onDelete: Cascade)
+
+  viewCount    Int @default(0)
+  requestCount Int @default(0)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+  reservedAt  DateTime?
+  donatedAt   DateTime?
+
+  @@index([donorId])
+  @@index([status])
+  @@index([category])
+  @@index([pickupLatitude, pickupLongitude])
+  @@index([createdAt])
+  @@map("products")
+}
