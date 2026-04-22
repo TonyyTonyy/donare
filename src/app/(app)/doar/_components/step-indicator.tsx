@@ -10,13 +10,12 @@ const STEPS = [
 ]
 
 interface StepIndicatorProps {
-  currentStep: number // 1-based
+  currentStep: number
 }
 
 export function StepIndicator({ currentStep }: StepIndicatorProps) {
   return (
     <div className="relative flex items-center justify-between w-full max-w-sm mx-auto">
-      {/* connecting line */}
       <div className="absolute inset-x-0 top-5 h-px bg-border mx-10" />
       <div
         className="absolute top-5 h-px bg-primary transition-all duration-700 ease-out mx-10"
@@ -37,17 +36,16 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
 
         return (
           <div key={step.label} className="relative flex flex-col items-center gap-2 z-10">
-            {/* circle */}
             <div
               className={cn(
                 'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300',
                 isDone &&
-                  'bg-primary border-primary text-primary-foreground',
+                'bg-primary border-primary text-primary-foreground',
                 isActive &&
-                  'bg-accent border-primary text-primary shadow-[0_0_16px_2px_hsl(var(--primary)/0.35)]',
+                'bg-accent border-primary text-primary shadow-[0_0_16px_2px_hsl(var(--primary)/0.35)]',
                 !isDone &&
-                  !isActive &&
-                  'bg-card border-border text-muted-foreground',
+                !isActive &&
+                'bg-card border-border text-muted-foreground',
               )}
             >
               {isDone ? (
@@ -57,7 +55,6 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
               )}
             </div>
 
-            {/* label */}
             <span
               className={cn(
                 'text-xs font-medium tracking-wide transition-colors duration-300',

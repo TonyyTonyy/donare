@@ -7,6 +7,28 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserStatus {
+  ACTIVE
+  SUSPENDED_TEMPORARY
+  SUSPENDED_PERMANENT
+  PENDING_VERIFICATION
+}
+
+enum VerificationLevel {
+  BASIC // Apenas email
+  PHONE // Email + Telefone
+  DOCUMENT // Email + Telefone + CPF
+}
+
+enum ReputationLevel {
+  NEWCOMER // 0-50 pontos (primeiras 48h)
+  BEGINNER // 51-100
+  REGULAR // 101-250
+  TRUSTED // 251-500
+  VERIFIED // 501-1000
+  ELITE // 1001+
+}
+
 enum ProductCategory {
   CLOTHING
   CLOTHING_MALE
@@ -54,34 +76,77 @@ enum ProductPickupType {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  password String?
-  name     String
-  nickname String?
-  avatar   String?
-  bio      String? @db.Text
+  id            String  @id @default(cuid())
+  email         String  @unique
+  emailVerified Boolean @default(false)
+  password      String?
+  name          String
+  nickname      String?
+  avatar        String?
+  bio           String? @db.Text
 
-  phone String? @unique
-  cpf   String? @unique
+  phone         String? @unique
+  phoneVerified Boolean @default(false)
+  cpf           String? @unique
+  cpfVerified   Boolean @default(false)
+
+  address             String?
+  city                String?
+  state               String?
+  zipCode             String?
+  latitude            Float?
+  longitude           Float?
+  defaultSearchRadius Int     @default(5000)
+
+  googleId String? @unique
+  appleId  String? @unique
+
+  status            UserStatus        @default(ACTIVE)
+  verificationLevel VerificationLevel @default(BASIC)
+
+  karmaPoints     Int             @default(50)
+  reputationScore Float           @default(0)
+  reputationLevel ReputationLevel @default(NEWCOMER)
+  totalDonations  Int             @default(0)
+  totalReceived   Int             @default(0)
 
   showRealName  Boolean @default(true)
   showStats     Boolean @default(true)
   showLocation  Boolean @default(true)
   allowMessages Boolean @default(true)
 
+  pushEnabled        Boolean @default(true)
+  emailNotifications Boolean @default(true)
+  notifyNewProducts  Boolean @default(true)
+  notifyMessages     Boolean @default(true)
+  notifyRequests     Boolean @default(true)
+
   currentActiveRequests   Int       @default(0)
   maxSimultaneousRequests Int       @default(3)
   lastDonationReceivedAt  DateTime?
   cooldownEndsAt          DateTime?
 
+  warningCount     Int       @default(0)
+  lastWarningAt    DateTime?
+  suspensionReason String?
+  suspendedUntil   DateTime?
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   lastLoginAt DateTime?
 
-  donatedProducts Product[] @relation("ProductDonor")
+  donatedProducts Product[]   @relation("ProductDonor")
+  userBadges      UserBadge[]
+  blockedUsers    Block[]     @relation("BlockInitiator")
+  blockedBy       Block[]     @relation("BlockTarget")
+  favorites       Favorite[]
+  blocks          Block[]
+  receivedReviews Review[]    @relation("ReviewReceiver")
+  givenReviews    Review[]    @relation("ReviewGiver")
 
   @@index([email])
+  @@index([latitude, longitude])
+  @@index([cpf])
   @@map("users")
 }
 
@@ -113,6 +178,8 @@ model Product {
   viewCount    Int @default(0)
   requestCount Int @default(0)
 
+  favorites Favorite[]
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   publishedAt DateTime?
@@ -125,4 +192,110 @@ model Product {
   @@index([pickupLatitude, pickupLongitude])
   @@index([createdAt])
   @@map("products")
+}
+
+model Favorite {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("favorites")
+}
+
+model Badge {
+  id String @id @default(cuid())
+
+  name        String @unique
+  description String
+  icon        String // Emoji ou URL
+
+  requirement      String // Descrição (ex: "Complete 10 doações")
+  requirementType  String // DONATIONS_COUNT, REPUTATION_SCORE, etc
+  requirementValue Int // Valor necessário
+
+  karmaReward Int @default(0)
+
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  userBadges UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  badgeId String
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  progress   Int     @default(0)
+  isUnlocked Boolean @default(false)
+
+  unlockedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@map("user_badges")
+}
+
+model Block {
+  id String @id @default(cuid())
+
+  blockerId String
+  blocker   User   @relation("BlockInitiator", fields: [blockerId], references: [id], onDelete: Cascade)
+
+  blockedId String
+  blocked   User   @relation("BlockTarget", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  reason String?
+
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("blocks")
+}
+
+model Review {
+  id String @id @default(cuid())
+
+  productId String
+
+  reviewerId String
+  reviewer   User   @relation("ReviewGiver", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  reviewedId String
+  reviewed   User   @relation("ReviewReceiver", fields: [reviewedId], references: [id], onDelete: Cascade)
+
+  rating  Int // 1-5 estrelas
+  comment String? @db.Text
+
+  isPunctual      Boolean @default(false)
+  isCommunicative Boolean @default(false)
+  isAsDescribed   Boolean @default(false)
+  isRespectful    Boolean @default(false)
+  wouldRecommend  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([productId, reviewerId, reviewedId])
+  @@index([reviewedId])
+  @@index([reviewerId])
+  @@map("reviews")
 }
