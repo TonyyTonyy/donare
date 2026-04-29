@@ -12,8 +12,8 @@ export default function DonateButton({ active }: { active: boolean }) {
           "relative flex h-13 w-13 items-center justify-center rounded-full",
           "-translate-y-5.5 transition-all duration-200 [-webkit-tap-highlight-color:transparent]",
           active
-            ? "bg-gradient-to-br from-secondary to-amber-400 text-secondary-foreground"
-            : "bg-gradient-to-br from-primary to-emerald-400 text-primary-foreground",
+            ? "bg-gradient-to-br from-primary to-primary/50 text-primary-foreground"
+            : "bg-gradient-to-br from-primary/20 to-primary/40 text-secondary-foreground",
         )}
       >
         <Gift className="relative z-10 h-6 w-6" strokeWidth={1.8} />
@@ -25,7 +25,7 @@ export default function DonateButton({ active }: { active: boolean }) {
       <span
         className={cn(
           "-mt-2.5 text-[0.6rem] font-bold leading-none tracking-widest",
-          active ? "text-secondary" : "text-primary",
+          active ? "text-primary" : "text-muted-foreground",
         )}
       >
         Doar

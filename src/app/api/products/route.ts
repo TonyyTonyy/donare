@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
-    /* const donorId = req.headers.get('x-user-id') ?? ''
-    if (!donorId) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    /* const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
+
+    const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const body = await req.json()
     const parsed = donationSchema.safeParse(body)
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
         images,
         primaryImageIndex,
         publishedAt: new Date(),
-        donorId: "cmni4drrf00003j6t0lua216x",
+        donorId: userId,
       },
     })
 

@@ -230,7 +230,7 @@ export default function GerenciarBloqueiosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-10" style={{ maxWidth: 480, margin: "0 auto" }}>
+    <div className="min-h-screen bg-background pb-10" style={{ margin: "0 auto" }}>
 
       <header className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
