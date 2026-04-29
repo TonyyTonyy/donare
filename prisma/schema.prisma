@@ -7,6 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  USER          // Usuário comum
+  COMMUNITY_POINT // ONG/Ponto comunitário
+  MODERATOR     // Moderador
+  ADMIN         // Administrador
+}
+
 enum UserStatus {
   ACTIVE
   SUSPENDED_TEMPORARY
@@ -15,57 +22,92 @@ enum UserStatus {
 }
 
 enum VerificationLevel {
-  BASIC // Apenas email
-  PHONE // Email + Telefone
-  DOCUMENT // Email + Telefone + CPF
+  BASIC       // Apenas email
+  PHONE       // Email + Telefone
+  DOCUMENT    // Email + Telefone + CPF
+  FULL        // Email + Telefone + CPF + Selfie com documento
 }
 
 enum ReputationLevel {
-  NEWCOMER // 0-50 pontos (primeiras 48h)
-  BEGINNER // 51-100
-  REGULAR // 101-250
-  TRUSTED // 251-500
-  VERIFIED // 501-1000
-  ELITE // 1001+
+  NEWCOMER      // 0-50 pontos (primeiras 48h)
+  BEGINNER      // 51-100
+  REGULAR       // 101-250
+  TRUSTED       // 251-500
+  VERIFIED      // 501-1000
+  ELITE         // 1001+
 }
 
 enum ProductCategory {
-  CLOTHING
-  CLOTHING_MALE
-  CLOTHING_FEMALE
-  CLOTHING_KIDS
-  SHOES
-  FURNITURE
-  FURNITURE_LIVING
-  FURNITURE_BEDROOM
-  FURNITURE_KITCHEN
-  ELECTRONICS
-  ELECTRONICS_IT
-  ELECTRONICS_HOME
-  ELECTRONICS_AUDIO
-  BOOKS
-  TOYS
-  SPORTS
-  KITCHEN
-  DECORATION
-  OTHER
+  CLOTHING            // Roupas
+  CLOTHING_MALE       // Roupas Masculinas
+  CLOTHING_FEMALE     // Roupas Femininas
+  CLOTHING_KIDS       // Roupas Infantis
+  SHOES               // Calçados
+  FURNITURE           // Móveis
+  FURNITURE_LIVING    // Móveis de Sala
+  FURNITURE_BEDROOM   // Móveis de Quarto
+  FURNITURE_KITCHEN   // Móveis de Cozinha
+  ELECTRONICS         // Eletrônicos
+  ELECTRONICS_IT      // Informática
+  ELECTRONICS_HOME    // Linha Branca
+  ELECTRONICS_AUDIO   // TV/Áudio
+  BOOKS               // Livros
+  TOYS                // Brinquedos
+  SPORTS              // Esportes
+  KITCHEN             // Utensílios de Cozinha
+  DECORATION          // Decoração
+  OTHER               // Outros
 }
 
 enum ProductCondition {
-  NEW
-  LIKE_NEW
-  GOOD
-  FAIR
+  NEW           // Novo (nunca usado)
+  LIKE_NEW      // Seminovo (pouco uso)
+  GOOD          // Usado (bom estado)
+  FAIR          // Usado (desgastado mas funcional)
 }
 
 enum ProductStatus {
-  DRAFT
-  ACTIVE
-  RESERVED
-  DONATED
-  CANCELLED
-  EXPIRED
-  REMOVED
+  DRAFT           // Rascunho (não publicado)
+  ACTIVE          // Ativo (disponível)
+  RESERVED        // Reservado (solicitação aceita)
+  DONATED         // Doado (concluído)
+  CANCELLED       // Cancelado pelo doador
+  EXPIRED         // Expirado (sem interesse por 30 dias)
+  REMOVED         // Removido por moderação
+}
+
+enum RequestStatus {
+  PENDING     // Aguardando resposta do doador
+  ACCEPTED    // Aceita pelo doador
+  REJECTED    // Recusada pelo doador
+  CANCELLED   // Cancelada pelo solicitante
+  COMPLETED   // Doação concluída
+  EXPIRED     // Expirou (doador não respondeu em 48h)
+}
+
+enum MeetingStatus {
+  PROPOSED      // Proposta enviada
+  CONFIRMED     // Confirmado por ambos
+  COMPLETED     // Encontro realizado
+  CANCELLED     // Cancelado
+  NO_SHOW       // Alguém não compareceu
+}
+
+enum NotificationType {
+  REQUEST_RECEIVED        // Você recebeu uma solicitação
+  REQUEST_ACCEPTED        // Sua solicitação foi aceita
+  REQUEST_REJECTED        // Sua solicitação foi recusada
+  NEW_MESSAGE             // Nova mensagem no chat
+  MEETING_SCHEDULED       // Encontro marcado
+  MEETING_REMINDER        // Lembrete de encontro (1h antes)
+  DONATION_COMPLETED      // Doação concluída
+  REVIEW_RECEIVED         // Você recebeu uma avaliação
+  LEVEL_UP                // Subiu de nível
+  BADGE_UNLOCKED          // Desbloqueou badge
+  WARNING_ISSUED          // Advertência recebida
+  ACCOUNT_SUSPENDED       // Conta suspensa
+  NEW_PRODUCTS_NEARBY     // Novos produtos perto de você
+  SYSTEM                  // Notificação do sistema
 }
 
 enum ProductPickupType {
@@ -75,117 +117,156 @@ enum ProductPickupType {
   OTHER
 }
 
+enum ReportReason {
+  FAKE_PROFILE
+  MISLEADING_PRODUCT
+  HARASSMENT
+  TRYING_TO_SELL
+  OFFENSIVE_CONTENT
+  SPAM
+  SCAM
+  NO_SHOW
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED_WARNING
+  RESOLVED_SUSPENSION
+  RESOLVED_NO_ACTION
+  DISMISSED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  LOCATION_SUGGESTION
+  MEETING_PROPOSAL
+  SYSTEM
+}
+
 model User {
-  id            String  @id @default(cuid())
-  email         String  @unique
-  emailVerified Boolean @default(false)
-  password      String?
-  name          String
-  nickname      String?
-  avatar        String?
-  bio           String? @db.Text
-
-  phone         String? @unique
-  phoneVerified Boolean @default(false)
-  cpf           String? @unique
-  cpfVerified   Boolean @default(false)
-
-  address             String?
-  city                String?
-  state               String?
-  zipCode             String?
-  latitude            Float?
-  longitude           Float?
-  defaultSearchRadius Int     @default(5000)
-
-  googleId String? @unique
-  appleId  String? @unique
-
-  status            UserStatus        @default(ACTIVE)
-  verificationLevel VerificationLevel @default(BASIC)
-
-  karmaPoints     Int             @default(50)
-  reputationScore Float           @default(0)
-  reputationLevel ReputationLevel @default(NEWCOMER)
-  totalDonations  Int             @default(0)
-  totalReceived   Int             @default(0)
-
-  showRealName  Boolean @default(true)
-  showStats     Boolean @default(true)
-  showLocation  Boolean @default(true)
-  allowMessages Boolean @default(true)
-
-  pushEnabled        Boolean @default(true)
-  emailNotifications Boolean @default(true)
-  notifyNewProducts  Boolean @default(true)
-  notifyMessages     Boolean @default(true)
-  notifyRequests     Boolean @default(true)
-
-  currentActiveRequests   Int       @default(0)
-  maxSimultaneousRequests Int       @default(3)
-  lastDonationReceivedAt  DateTime?
-  cooldownEndsAt          DateTime?
-
-  warningCount     Int       @default(0)
-  lastWarningAt    DateTime?
-  suspensionReason String?
-  suspendedUntil   DateTime?
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  lastLoginAt DateTime?
-
-  donatedProducts Product[]   @relation("ProductDonor")
-  userBadges      UserBadge[]
-  blockedUsers    Block[]     @relation("BlockInitiator")
-  blockedBy       Block[]     @relation("BlockTarget")
-  favorites       Favorite[]
-  blocks          Block[]
-  receivedReviews Review[]    @relation("ReviewReceiver")
-  givenReviews    Review[]    @relation("ReviewGiver")
-
+  id                String              @id @default(cuid())
+  email             String              @unique
+  emailVerified     Boolean             @default(false)
+  password          String?          
+  name              String
+  nickname          String?         
+  avatar            String?
+  bio               String?             @db.Text
+  
+  phone             String?             @unique
+  phoneVerified     Boolean             @default(false)
+  cpf               String?             @unique
+  cpfVerified       Boolean             @default(false)
+  
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  latitude          Float?
+  longitude         Float?
+  defaultSearchRadius Int               @default(5000) // metros
+  
+  googleId          String?             @unique
+  appleId           String?             @unique
+  
+  role              UserRole            @default(USER)
+  status            UserStatus          @default(ACTIVE)
+  verificationLevel VerificationLevel   @default(BASIC)
+  
+  karmaPoints       Int                 @default(50)
+  reputationScore   Float               @default(0)
+  reputationLevel   ReputationLevel     @default(NEWCOMER)
+  totalDonations    Int                 @default(0)
+  totalReceived     Int                 @default(0)
+  
+  showRealName      Boolean             @default(true)
+  showStats         Boolean             @default(true)
+  showLocation      Boolean             @default(true)
+  allowMessages     Boolean             @default(true)
+  
+  pushEnabled       Boolean             @default(true)
+  emailNotifications Boolean            @default(true)
+  notifyNewProducts Boolean             @default(true)
+  notifyMessages    Boolean             @default(true)
+  notifyRequests    Boolean             @default(true)
+  
+  currentActiveRequests Int             @default(0)
+  maxSimultaneousRequests Int           @default(3)
+  lastDonationReceivedAt DateTime?
+  cooldownEndsAt    DateTime?
+  
+  warningCount      Int                 @default(0)
+  lastWarningAt     DateTime?
+  suspensionReason  String?
+  suspendedUntil    DateTime?
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  lastLoginAt       DateTime?
+  
+  donatedProducts   Product[]           @relation("ProductDonor")
+  requests          Request[]
+  receivedReviews   Review[]            @relation("ReviewReceiver")
+  givenReviews      Review[]            @relation("ReviewGiver")
+  notifications     Notification[]
+  reportsSubmitted  Report[]            @relation("ReportSubmitter")
+  reportsReceived   Report[]            @relation("ReportTarget")
+  userBadges        UserBadge[]
+  blockedUsers      Block[]             @relation("BlockInitiator")
+  blockedBy         Block[]             @relation("BlockTarget")
+  favorites         Favorite[]
+  
   @@index([email])
   @@index([latitude, longitude])
   @@index([cpf])
+  @@index([reputationLevel])
+  @@index([status])
   @@map("users")
 }
 
 model Product {
-  id          String           @id @default(cuid())
-  title       String
-  description String           @db.Text
-  category    ProductCategory
-  condition   ProductCondition
-  status      ProductStatus    @default(ACTIVE)
-
-  images            String[]
-  primaryImageIndex Int      @default(0)
-
-  size      String?
-  brand     String?
-  isWorking Boolean?
-
-  pickupType         ProductPickupType @default(NEUTRAL_POINT)
-  pickupAddress      String?
-  pickupCity         String?
-  pickupLatitude     Float?
-  pickupLongitude    Float?
+  id                String              @id @default(cuid())
+  title             String
+  description       String              @db.Text
+  category          ProductCategory
+  condition         ProductCondition
+  status            ProductStatus       @default(ACTIVE)
+  
+  images            String[]          
+  primaryImageIndex Int                 @default(0)
+  
+  size              String?            
+  brand             String?
+  isWorking         Boolean?         
+  
+  pickupType        ProductPickupType @default(NEUTRAL_POINT)
+  pickupAddress     String?
+  pickupCity        String?
+  pickupLatitude    Float?
+  pickupLongitude   Float?
   pickupInstructions String?
-
-  donorId String
-  donor   User   @relation("ProductDonor", fields: [donorId], references: [id], onDelete: Cascade)
-
-  viewCount    Int @default(0)
-  requestCount Int @default(0)
-
-  favorites Favorite[]
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  publishedAt DateTime?
-  reservedAt  DateTime?
-  donatedAt   DateTime?
-
+  
+  donorId           String
+  donor             User                @relation("ProductDonor", fields: [donorId], references: [id], onDelete: Cascade)
+  
+  requests          Request[]
+  favorites         Favorite[]
+  
+  viewCount         Int                 @default(0)
+  requestCount      Int                 @default(0)
+  
+  autoAcceptFirstRequest Boolean         @default(false)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  publishedAt       DateTime?
+  reservedAt        DateTime?
+  donatedAt         DateTime?
+  expiresAt         DateTime?        
+  
   @@index([donorId])
   @@index([status])
   @@index([category])
@@ -194,108 +275,256 @@ model Product {
   @@map("products")
 }
 
-model Favorite {
-  id String @id @default(cuid())
+model Request {
+  id                String              @id @default(cuid())
+  
+  productId         String
+  product           Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  requesterId       String
+  requester         User                @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  
+  status            RequestStatus       @default(PENDING)
+  
+  message           String?             @db.Text
+  
+  meeting           Meeting?
+  
+  confirmedByDonor      Boolean         @default(false)
+  confirmedByRequester  Boolean         @default(false)
+  confirmationCode      String?         @unique
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  respondedAt       DateTime?     
+  completedAt       DateTime?
+  
+  @@unique([productId, requesterId])
+  @@index([productId])
+  @@index([requesterId])
+  @@index([status])
+  @@map("requests")
+}
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Meeting {
+  id                String              @id @default(cuid())
+  
+  requestId         String              @unique
+  request           Request             @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  status            MeetingStatus       @default(PROPOSED)
+  
+  locationName      String?        
+  locationAddress   String?
+  latitude          Float?
+  longitude         Float?
+  isSafePoint       Boolean             @default(false)
+  
+  scheduledAt       DateTime
+  duration          Int                 @default(30) 
+  
+  emergencyContact  String?     
+  sharedWithContact Boolean             @default(false)
+  
+  confirmedByDonor      Boolean         @default(false)
+  confirmedByRequester  Boolean         @default(false)
+  
+  reminderSent      Boolean             @default(false)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("meetings")
+}
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+model Review {
+  id                String              @id @default(cuid())
+  
+  productId         String   
+  
+  reviewerId        String
+  reviewer          User                @relation("ReviewGiver", fields: [reviewerId], references: [id], onDelete: Cascade)
+  
+  reviewedId        String
+  reviewed          User                @relation("ReviewReceiver", fields: [reviewedId], references: [id], onDelete: Cascade)
+  
+  rating            Int  
+  comment           String?             @db.Text
+  
+  isPunctual        Boolean             @default(false)
+  isCommunicative   Boolean             @default(false)
+  isAsDescribed     Boolean             @default(false)
+  isRespectful      Boolean             @default(false)
+  wouldRecommend    Boolean             @default(false)
+  
+  createdAt         DateTime            @default(now())
+  
+  @@unique([productId, reviewerId, reviewedId])
+  @@index([reviewedId])
+  @@index([reviewerId])
+  @@map("reviews")
+}
 
-  createdAt DateTime @default(now())
+model Notification {
+  id                String              @id @default(cuid())
+  
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type              NotificationType
+  title             String
+  message           String              @db.Text
+  
+  data              Json? 
+  
+  actionUrl         String?      
+  actionLabel       String?       
+  
+  isRead            Boolean             @default(false)
+  readAt            DateTime?
+  
+  createdAt         DateTime            @default(now())
+  
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
 
-  @@unique([userId, productId])
-  @@index([userId])
-  @@map("favorites")
+model Report {
+  id                String              @id @default(cuid())
+  
+  reporterId        String
+  reporter          User                @relation("ReportSubmitter", fields: [reporterId], references: [id], onDelete: Cascade)
+  
+  targetId          String
+  target            User                @relation("ReportTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  
+  productId         String?      
+  
+  reason            ReportReason
+  description       String              @db.Text
+  evidenceUrls      String[]        
+  
+  status            ReportStatus        @default(PENDING)
+  reviewedBy        String?       
+  reviewNotes       String?             @db.Text
+  actionTaken       String?      
+  
+  createdAt         DateTime            @default(now())
+  reviewedAt        DateTime?
+  
+  @@index([targetId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
 }
 
 model Badge {
-  id String @id @default(cuid())
-
-  name        String @unique
-  description String
-  icon        String // Emoji ou URL
-
-  requirement      String // Descrição (ex: "Complete 10 doações")
-  requirementType  String // DONATIONS_COUNT, REPUTATION_SCORE, etc
-  requirementValue Int // Valor necessário
-
-  karmaReward Int @default(0)
-
-  order Int @default(0)
-
-  createdAt DateTime @default(now())
-
-  userBadges UserBadge[]
-
+  id                String              @id @default(cuid())
+  
+  name              String              @unique
+  description       String
+  icon              String        
+  
+  requirement       String   
+  requirementType   String     
+  requirementValue  Int       
+  
+  karmaReward       Int                 @default(0)
+  
+  order             Int                 @default(0)
+  
+  createdAt         DateTime            @default(now())
+  
+  userBadges        UserBadge[]
+  
   @@map("badges")
 }
 
 model UserBadge {
-  id String @id @default(cuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  badgeId String
-  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-
-  progress   Int     @default(0)
-  isUnlocked Boolean @default(false)
-
-  unlockedAt DateTime?
-  createdAt  DateTime  @default(now())
-
+  id                String              @id @default(cuid())
+  
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  badgeId           String
+  badge             Badge               @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  progress          Int                 @default(0)
+  isUnlocked        Boolean             @default(false)
+  
+  unlockedAt        DateTime?
+  createdAt         DateTime            @default(now())
+  
   @@unique([userId, badgeId])
   @@index([userId])
   @@map("user_badges")
 }
 
 model Block {
-  id String @id @default(cuid())
-
-  blockerId String
-  blocker   User   @relation("BlockInitiator", fields: [blockerId], references: [id], onDelete: Cascade)
-
-  blockedId String
-  blocked   User   @relation("BlockTarget", fields: [blockedId], references: [id], onDelete: Cascade)
-
-  reason String?
-
-  createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    String?
-
+  id                String              @id @default(cuid())
+  
+  blockerId         String
+  blocker           User                @relation("BlockInitiator", fields: [blockerId], references: [id], onDelete: Cascade)
+  
+  blockedId         String
+  blocked           User                @relation("BlockTarget", fields: [blockedId], references: [id], onDelete: Cascade)
+  
+  reason            String?
+  
+  createdAt         DateTime            @default(now())
+  
   @@unique([blockerId, blockedId])
   @@index([blockedId])
   @@map("blocks")
 }
 
-model Review {
-  id String @id @default(cuid())
+model Favorite {
+  id                String              @id @default(cuid())
+  
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId         String
+  product           Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("favorites")
+}
 
-  productId String
+model ActivityLog {
+  id                String              @id @default(cuid())
+  
+  userId            String?
+  action            String
+  metadata          Json?
+  ipAddress         String?
+  userAgent         String?
+  
+  createdAt         DateTime            @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
 
-  reviewerId String
-  reviewer   User   @relation("ReviewGiver", fields: [reviewerId], references: [id], onDelete: Cascade)
-
-  reviewedId String
-  reviewed   User   @relation("ReviewReceiver", fields: [reviewedId], references: [id], onDelete: Cascade)
-
-  rating  Int // 1-5 estrelas
-  comment String? @db.Text
-
-  isPunctual      Boolean @default(false)
-  isCommunicative Boolean @default(false)
-  isAsDescribed   Boolean @default(false)
-  isRespectful    Boolean @default(false)
-  wouldRecommend  Boolean @default(false)
-
-  createdAt DateTime @default(now())
-
-  @@unique([productId, reviewerId, reviewedId])
-  @@index([reviewedId])
-  @@index([reviewerId])
-  @@map("reviews")
+model SystemMetrics {
+  id                String              @id @default(cuid())
+  date              DateTime            @unique @default(now())
+  
+  totalUsers        Int                 @default(0)
+  activeUsers       Int                 @default(0)
+  totalProducts     Int                 @default(0)
+  totalDonations    Int                 @default(0)
+  successRate       Float               @default(0)
+  
+  @@map("system_metrics")
 }

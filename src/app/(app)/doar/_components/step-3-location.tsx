@@ -170,7 +170,7 @@ export function Step3Location({ data, onChange, errors }: Step3LocationProps) {
           onChange={(e) => onChange('pickupCity', e.target.value)}
           aria-invalid={!!errors.pickupCity}
           placeholder="Ex: Feira de Santana, BA"
-          className={cn('bg-muted/40 border-border', errors.pickupCity && 'border-destructive')}
+          className={cn('', errors.pickupCity && 'border-destructive')}
         />
         <FieldError message={errors.pickupCity} />
       </FormField>
@@ -187,7 +187,7 @@ export function Step3Location({ data, onChange, errors }: Step3LocationProps) {
           aria-invalid={!!errors.pickupAddress}
           placeholder="Rua, número, bairro"
           className={cn(
-            'bg-muted/40 border-border',
+            '',
             errors.pickupAddress && 'border-destructive',
           )}
         />

@@ -174,7 +174,7 @@ export default function DoarPage() {
   return (
     <div className="min-h-dvh bg-background text-foreground flex flex-col">
       <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border">
-        <div className="max-w-xl mx-auto px-4 py-4 flex flex-col gap-4">
+        <div className="max-w-[1000px] mx-auto px-4 py-4 flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <Button
               type="button"
@@ -194,7 +194,7 @@ export default function DoarPage() {
         </div>
       </header>
 
-      <section className="flex-1 max-w-xl mx-auto w-full px-4 py-6">
+      <section className="flex-1 max-w-[1000px] mx-auto w-full px-4 py-6">
         <form onSubmit={onSubmit} noValidate>
           {step === 1 && <Step1ProductForm data={formData} onChange={handleChange} errors={errors} />}
           {step === 2 && <Step2Photos data={formData} onChange={handleChange} errors={errors} />}

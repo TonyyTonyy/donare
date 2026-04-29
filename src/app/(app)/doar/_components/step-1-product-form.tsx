@@ -51,7 +51,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
           onChange={(e) => onChange('title', e.target.value)}
           aria-invalid={!!errors.title}
           placeholder="Ex: Camiseta polo azul"
-          className={cn('bg-muted/40 border-border', errors.title && 'border-destructive')}
+          className={cn('', errors.title && 'border-destructive')}
         />
         <FieldError message={errors.title} />
       </FormField>
@@ -65,7 +65,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
           aria-invalid={!!errors.description}
           placeholder="Descreva o produto com detalhes: estado, cor, histórico de uso..."
           className={cn(
-            'bg-muted/40 border-border min-h-25 resize-none',
+            ' min-h-25 resize-none',
             errors.description && 'border-destructive',
           )}
         />
@@ -87,7 +87,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
             <SelectTrigger
               id="category"
               aria-invalid={!!errors.category}
-              className={cn('bg-muted/40 border-border', errors.category && 'border-destructive')}
+              className={cn('', errors.category && 'border-destructive')}
             >
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
@@ -111,7 +111,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
             <SelectTrigger
               id="condition"
               aria-invalid={!!errors.condition}
-              className={cn('bg-muted/40 border-border', errors.condition && 'border-destructive')}
+              className={cn('', errors.condition && 'border-destructive')}
             >
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
@@ -149,7 +149,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
               onChange={(e) => onChange('size', e.target.value)}
               aria-invalid={!!errors.size}
               placeholder="Ex: 42, P, Único"
-              className={cn('bg-muted/40 border-border', errors.size && 'border-destructive')}
+              className={cn('', errors.size && 'border-destructive')}
             />
           )}
           <FieldError message={errors.size} />
@@ -168,7 +168,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
             onChange={(e) => onChange('brand', e.target.value)}
             aria-invalid={!!errors.brand}
             placeholder="Ex: Nike, Samsung, IKEA"
-            className={cn('bg-muted/40 border-border', errors.brand && 'border-destructive')}
+            className={cn('', errors.brand && 'border-destructive')}
           />
           <FieldError message={errors.brand} />
         </FormField>
@@ -208,7 +208,7 @@ export function Step1ProductForm({ data, onChange, errors }: Step1ProductFormPro
               className={cn(
                 'rounded-xl border px-3 py-2.5 text-sm font-medium transition-all text-left',
                 data.pickupType === value
-                  ? 'border-secondary bg-secondary/20 text-secondary'
+                  ? 'border-secondary bg-primary/20 text-primary'
                   : 'border-border bg-muted/40 text-muted-foreground hover:border-secondary hover:text-foreground',
                 errors.pickupType && 'border-destructive',
               )}
