@@ -12,7 +12,7 @@ export async function GET(
       where: { productId },
       include: {
         requester: {
-          select: {
+            select: {
             id: true,
             name: true,
             nickname: true,
@@ -21,6 +21,7 @@ export async function GET(
             reputationLevel: true,
             totalDonations: true,
             totalReceived: true,
+            showRealName: true,
             createdAt: true,
           },
         },

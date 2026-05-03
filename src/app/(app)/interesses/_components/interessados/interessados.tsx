@@ -32,6 +32,7 @@ interface Interessado {
     reputationLevel: string;
     totalDonations: number;
     totalReceived: number;
+    showRealName: boolean;
     createdAt: string;
   };
 }
