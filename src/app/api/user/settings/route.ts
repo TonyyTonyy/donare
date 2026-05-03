@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest) {
           return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         } */
 
-        const userId = "cmni4drrf00003j6t0lua216x"
+        const userId = "cmofytoqj00003j6tdv6lipwy"
 
         const settings = await prisma.user.findUnique({
             where: { id: userId },
@@ -59,7 +59,7 @@ export async function PATCH(req: NextRequest) {
           return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         } */
 
-        const userId = "cmni4drrf00003j6t0lua216x"
+        const userId = "cmofytoqj00003j6tdv6lipwy"
 
         const body = await req.json();
         const parsed = settingsPatchSchema.safeParse(body);

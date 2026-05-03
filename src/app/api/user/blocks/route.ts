@@ -9,7 +9,7 @@ export async function GET(_req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-      const userId = "cmni4drrf00003j6t0lua216x"
+      const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const blocks = await prisma.block.findMany({
       where: { blockerId: userId },
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmni4drrf00003j6t0lua216x"
+    const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const body = await req.json();
     const parsed = blockSchema.safeParse(body);
@@ -90,7 +90,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmni4drrf00003j6t0lua216x"
+    const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const userIdBlock = req.nextUrl.searchParams.get("userId");
     if (!userIdBlock) {
