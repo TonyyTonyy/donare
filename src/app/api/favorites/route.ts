@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmni4drrf00003j6t0lua216x"
+    const userId = "cmofytoqj00003j6tdv6lipwy"
      
 
     const { searchParams } = new URL(request.url);
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmni4drrf00003j6t0lua216x"
+    const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const body = await request.json();
     const { productId } = body;
@@ -91,7 +91,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmni4drrf00003j6t0lua216x"
+    const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get("productId");

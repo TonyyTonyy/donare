@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmni4drrf00003j6t0lua216x"
+    const userId = "cmofytoqj00003j6tdv6lipwy"
 
     const { searchParams } = new URL(request.url);
 
