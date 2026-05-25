@@ -2,6 +2,9 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getUserIdFromRequest } from "@/lib/auth";
+
+
 const profilePatchSchema = z.object({
   name:     z.string().min(2).max(100).optional(),
   nickname: z.string().min(2).max(50).regex(/^[a-z0-9._]+$/, "Apenas letras, números, pontos e _").optional().nullable(),
@@ -19,7 +22,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(req)
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -65,8 +68,13 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(user);
-  } catch (err) {
+  } catch (err: any) {
     console.error("[GET /api/user/profile]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
@@ -78,7 +86,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(req)
 
     const body = await req.json();
     const parsed = profilePatchSchema.safeParse(body);
@@ -122,8 +130,14 @@ export async function PATCH(req: NextRequest) {
     });
 
     return NextResponse.json(updated);
-  } catch (err) {
+  } catch (err: any) {
     console.error("[PATCH /api/user/profile]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
+
 }

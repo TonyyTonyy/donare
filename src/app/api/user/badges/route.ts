@@ -1,5 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+
+import { getUserIdFromRequest } from "@/lib/auth";
+
 export async function GET(_req: NextRequest) {
   try {
     /* const session = await auth();
@@ -7,7 +10,8 @@ export async function GET(_req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(_req)
+
 
     const allBadges = await prisma.badge.findMany({
       orderBy: { order: "asc" },
@@ -50,8 +54,14 @@ export async function GET(_req: NextRequest) {
       unlocked: result.filter((b) => b.isUnlocked).length,
       total: result.length,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[GET /api/user/badges]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
+
 }

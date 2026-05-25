@@ -2,6 +2,9 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getUserIdFromRequest } from "@/lib/auth";
+
+
 export async function GET(_req: NextRequest) {
   try {
     /* const session = await auth();
@@ -9,7 +12,7 @@ export async function GET(_req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-      const userId = "cmofytoqj00003j6tdv6lipwy"
+      const userId = await getUserIdFromRequest(_req)
 
     const blocks = await prisma.block.findMany({
       where: { blockerId: userId },
@@ -29,8 +32,13 @@ export async function GET(_req: NextRequest) {
     });
 
     return NextResponse.json({ blocks, total: blocks.length });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[GET /api/user/blocks]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
@@ -47,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(req)
 
     const body = await req.json();
     const parsed = blockSchema.safeParse(body);
@@ -77,8 +85,13 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(block, { status: 201 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[POST /api/user/blocks]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
@@ -90,7 +103,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(req)
 
     const userIdBlock = req.nextUrl.searchParams.get("userId");
     if (!userIdBlock) {
@@ -105,8 +118,13 @@ export async function DELETE(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[DELETE /api/user/blocks]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }

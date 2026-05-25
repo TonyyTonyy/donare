@@ -1,5 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+
+import { getUserIdFromRequest } from '@/lib/auth'
+
 export async function POST(request: NextRequest) {
   try {
     /* const session = await auth();
@@ -7,7 +10,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const requesterId = "cmni4drrf00003j6t0lua216x"
+    const requesterId = await getUserIdFromRequest(request)
+
 
     const body = await request.json();
     const { productId, message } = body;
@@ -89,14 +93,20 @@ export async function POST(request: NextRequest) {
      return NextResponse.json({ request: req }, { status: 201 });
 
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("[POST /api/requests]", error);
+
+    if (String(error?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: "Erro ao criar solicitação" },
       { status: 500 }
     );
   }
 }
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -105,7 +115,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(request)
+
 
     const { searchParams } = new URL(request.url);
     const role = searchParams.get("role") ?? "requester";
@@ -127,8 +138,13 @@ export async function GET(request: NextRequest) {
        prisma.request.count({ where }),
      ]);
      return NextResponse.json({ requests, pagination: { page, limit, total } });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[GET /api/requests]", error);
+
+    if (String(error?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro ao buscar solicitações" }, { status: 500 });
   }
 }

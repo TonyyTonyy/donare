@@ -54,7 +54,8 @@ export async function POST(req: NextRequest) {
 
     const maxAgeSeconds = 60 * 60 * 24 * 30; // 30 dias
 
-    const accessToken = signAccessToken({ sub: String(user.id) });
+    const accessToken = await signAccessToken({ sub: String(user.id) });
+
 
     res.cookies.set({
       name: "access_token",

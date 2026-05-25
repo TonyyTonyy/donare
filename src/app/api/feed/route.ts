@@ -2,6 +2,9 @@ import { ProductCategory } from "@/generated/prisma/enums";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+import { getUserIdFromRequest } from '@/lib/auth'
+
+
 function haversineDistance(
     lat1: number,
     lon1: number,
@@ -35,7 +38,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(request)
 
     const { searchParams } = new URL(request.url);
 
@@ -124,8 +127,16 @@ export async function GET(request: NextRequest) {
                 hasPreviousPage: page > 1,
             },
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("[GET /api/products]", error);
+
+        if (String(error?.message ?? "").includes("Não autenticado")) {
+            return NextResponse.json(
+                { error: "Não autenticado" },
+                { status: 401 }
+            );
+        }
+
         return NextResponse.json(
             { error: "Erro ao buscar produtos" },
             { status: 500 }

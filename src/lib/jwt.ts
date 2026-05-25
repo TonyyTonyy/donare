@@ -1,7 +1,6 @@
-import jwt from "jsonwebtoken";
+import { jwtVerify, SignJWT } from "jose";
 
 const DEFAULT_ISSUER = "donare";
-
 
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
@@ -15,42 +14,44 @@ export type AccessTokenPayload = {
   sub: string; // userId
 };
 
-export function signAccessToken(payload: AccessTokenPayload, opts?: { expiresIn?: string }) {
+export async function signAccessToken(
+  payload: AccessTokenPayload,
+  opts?: { expiresIn?: string }
+) {
   const secret = getJwtSecret();
-
   const expiresIn = opts?.expiresIn ?? "30d";
 
-  // jsonwebtoken tipa de forma diferente dependendo de versão/config TS,
-  // então fazemos cast para evitar incompatibilidade de overload.
-  return (jwt as any).sign(
-    {
-      sub: payload.sub,
-    },
-    secret,
-    {
-      expiresIn,
-      issuer: DEFAULT_ISSUER,
-    }
-  );
+  // jose entende exp em segundos/ ms via Date, então convertemos usando o expiresIn.
+  // Para manter compatibilidade com o que já existe no projeto, aceitamos apenas "30d" ou "Xd".
+  const match = /^([0-9]+)d$/i.exec(expiresIn);
+  const days = match ? Number(match[1]) : 30;
+
+  const alg = "HS256" as const;
+
+  const jwt = await new SignJWT({ sub: payload.sub })
+    .setProtectedHeader({ alg })
+    .setIssuer(DEFAULT_ISSUER)
+    .setSubject(payload.sub)
+    .setIssuedAt()
+    .setExpirationTime(`${days}d`)
+    .sign(new TextEncoder().encode(secret));
+
+  return jwt;
 }
 
-
-export function verifyAccessToken(token: string): AccessTokenPayload {
+export async function verifyAccessToken(token: string): Promise<AccessTokenPayload> {
   const secret = getJwtSecret();
 
-  const decoded = (jwt as any).verify(token, secret, {
+  const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
     issuer: DEFAULT_ISSUER,
   });
 
-  if (typeof decoded === "string" || !decoded || typeof decoded !== "object") {
-    throw new Error("Token inválido");
-  }
-
-  const sub = (decoded as any).sub;
+  const sub = payload.sub;
   if (!sub || typeof sub !== "string") {
     throw new Error("Token inválido: sub ausente");
   }
 
   return { sub };
 }
+
 
