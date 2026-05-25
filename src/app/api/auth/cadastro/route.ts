@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/lib/prisma";
 
+import { signAccessToken } from "@/lib/jwt";
+
+
 type CadastroBody = {
   name: string;
   email: string;
@@ -75,9 +78,12 @@ export async function POST(req: NextRequest) {
 
     const maxAgeSeconds = 60 * 60 * 24 * 30; // 30 dias
 
+    const accessToken = signAccessToken({ sub: String(user.id) });
+
     res.cookies.set({
-      name: "donare_user_id",
-      value: String(user.id),
+      name: "access_token",
+      value: accessToken,
+
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
