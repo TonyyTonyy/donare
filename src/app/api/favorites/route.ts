@@ -1,6 +1,9 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+import { getUserIdFromRequest } from '@/lib/auth'
+
+
 export async function GET(request: NextRequest) {
   try {
     /* const session = await auth();
@@ -8,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(request)
      
 
     const { searchParams } = new URL(request.url);
@@ -45,11 +48,17 @@ export async function GET(request: NextRequest) {
        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
      });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("[GET /api/favoritos]", error);
+
+    if (String(error?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro ao buscar favoritos" }, { status: 500 });
   }
 }
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,7 +67,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
+    const userId = await getUserIdFromRequest(request)
+
 
     const body = await request.json();
     const { productId } = body;
@@ -78,11 +88,17 @@ export async function POST(request: NextRequest) {
      });
      return NextResponse.json({ favorite }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("[POST /api/favoritos]", error);
+
+    if (String(error?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro ao favoritar" }, { status: 500 });
   }
 }
+
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -91,8 +107,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-    const userId = "cmofytoqj00003j6tdv6lipwy"
-
+    const userId = await getUserIdFromRequest(request)
+    
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get("productId");
 
@@ -105,8 +121,13 @@ export async function DELETE(request: NextRequest) {
      });
 
     return NextResponse.json({ message: "Removido dos favoritos" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[DELETE /api/favoritos]", error);
+
+    if (String(error?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro ao remover favorito" }, { status: 500 });
   }
 }

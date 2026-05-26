@@ -84,12 +84,12 @@ interface Review {
 }
 
 const LEVEL_CONFIG: Record<ReputationLevel, { label: string; xpMin: number; xpMax: number; color: string }> = {
-  NEWCOMER:  { label: "Novato",     xpMin: 0,    xpMax: 50,   color: "#abbab3" },
-  BEGINNER:  { label: "Iniciante",  xpMin: 51,   xpMax: 100,  color: "#47cfeb" },
-  REGULAR:   { label: "Regular",    xpMin: 101,  xpMax: 250,  color: "#26d968" },
-  TRUSTED:   { label: "Confiável",  xpMin: 251,  xpMax: 500,  color: "#26d968" },
-  VERIFIED:  { label: "Verificado", xpMin: 501,  xpMax: 1000, color: "#f4ca25" },
-  ELITE:     { label: "Elite",      xpMin: 1001, xpMax: 9999, color: "#f4ca25" },
+  NEWCOMER: { label: "Novato", xpMin: 0, xpMax: 50, color: "#abbab3" },
+  BEGINNER: { label: "Iniciante", xpMin: 51, xpMax: 100, color: "#47cfeb" },
+  REGULAR: { label: "Regular", xpMin: 101, xpMax: 250, color: "#26d968" },
+  TRUSTED: { label: "Confiável", xpMin: 251, xpMax: 500, color: "#26d968" },
+  VERIFIED: { label: "Verificado", xpMin: 501, xpMax: 1000, color: "#f4ca25" },
+  ELITE: { label: "Elite", xpMin: 1001, xpMax: 9999, color: "#f4ca25" },
 };
 
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -312,9 +312,9 @@ export default function PerfilPage() {
 
   const memberSince = user
     ? new Date(user.createdAt).toLocaleDateString("pt-BR", {
-        month: "short",
-        year: "numeric",
-      })
+      month: "short",
+      year: "numeric",
+    })
     : "";
 
   async function handleSaveProfile() {
@@ -345,9 +345,11 @@ export default function PerfilPage() {
       });
       if (!res.ok) throw new Error();
     } catch {
-      setUser((prev) => (prev ? { ...prev, ...Object.fromEntries(
-        Object.keys(patch).map((k) => [k, (user as any)?.[k]])
-      )} : prev));
+      setUser((prev) => (prev ? {
+        ...prev, ...Object.fromEntries(
+          Object.keys(patch).map((k) => [k, (user as any)?.[k]])
+        )
+      } : prev));
       toast.error("Erro ao salvar preferência.");
     }
   }
@@ -471,9 +473,9 @@ export default function PerfilPage() {
             <Tabs defaultValue="visao-geral" className="w-full mt-5">
               <TabsList className="w-full grid grid-cols-4">
                 <TabsTrigger value="visao-geral" className="text-xs">Visão Geral</TabsTrigger>
-                <TabsTrigger value="editar"      className="text-xs">Editar</TabsTrigger>
-                <TabsTrigger value="avaliacoes"  className="text-xs">Avaliações</TabsTrigger>
-                <TabsTrigger value="config"      className="text-xs">Config.</TabsTrigger>
+                <TabsTrigger value="editar" className="text-xs">Editar</TabsTrigger>
+                <TabsTrigger value="avaliacoes" className="text-xs">Avaliações</TabsTrigger>
+                <TabsTrigger value="config" className="text-xs">Config.</TabsTrigger>
               </TabsList>
 
               <TabsContent value="visao-geral" className="mt-5 space-y-6">
@@ -484,9 +486,9 @@ export default function PerfilPage() {
                   <div className="grid grid-cols-2 gap-2.5">
                     {[
                       { icon: "📤", val: user.totalDonations, label: "Doações realizadas", color: "text-primary" },
-                      { icon: "📥", val: user.totalReceived,  label: "Doações recebidas",  color: "text-primary" },
-                      { icon: "✦",  val: user.karmaPoints,   label: "Karma total",         color: "text-secondary-foreground" },
-                      { icon: "📅", val: memberSince,         label: "Membro desde",        color: "text-foreground" },
+                      { icon: "📥", val: user.totalReceived, label: "Doações recebidas", color: "text-primary" },
+                      { icon: "✦", val: user.karmaPoints, label: "Karma total", color: "text-secondary-foreground" },
+                      { icon: "📅", val: memberSince, label: "Membro desde", color: "text-foreground" },
                     ].map((s) => (
                       <Card key={s.label} className="bg-card border-border">
                         <CardContent className="p-3.5">
@@ -757,11 +759,11 @@ export default function PerfilPage() {
                   </h3>
                   <Card className="bg-card border-border overflow-hidden p-0">
                     <CardContent className="p-4 divide-y divide-border">
-                      <ToggleRow label="Notificações push" description="Ativar todas as notificações" checked={user.pushEnabled}          onCheckedChange={(v) => handleSaveSettings({ pushEnabled: v })} />
-                      <ToggleRow label="Mensagens"         description="Novas mensagens no chat"      checked={user.notifyMessages}       onCheckedChange={(v) => handleSaveSettings({ notifyMessages: v })} />
-                      <ToggleRow label="Solicitações"      description="Pedidos nos seus itens"       checked={user.notifyRequests}       onCheckedChange={(v) => handleSaveSettings({ notifyRequests: v })} />
-                      <ToggleRow label="Itens próximos"    description="Novos produtos na sua região" checked={user.notifyNewProducts}    onCheckedChange={(v) => handleSaveSettings({ notifyNewProducts: v })} />
-                      <ToggleRow label="E-mail"            description="Resumos e alertas por e-mail" checked={user.emailNotifications}  onCheckedChange={(v) => handleSaveSettings({ emailNotifications: v })} />
+                      <ToggleRow label="Notificações push" description="Ativar todas as notificações" checked={user.pushEnabled} onCheckedChange={(v) => handleSaveSettings({ pushEnabled: v })} />
+                      <ToggleRow label="Mensagens" description="Novas mensagens no chat" checked={user.notifyMessages} onCheckedChange={(v) => handleSaveSettings({ notifyMessages: v })} />
+                      <ToggleRow label="Solicitações" description="Pedidos nos seus itens" checked={user.notifyRequests} onCheckedChange={(v) => handleSaveSettings({ notifyRequests: v })} />
+                      <ToggleRow label="Itens próximos" description="Novos produtos na sua região" checked={user.notifyNewProducts} onCheckedChange={(v) => handleSaveSettings({ notifyNewProducts: v })} />
+                      <ToggleRow label="E-mail" description="Resumos e alertas por e-mail" checked={user.emailNotifications} onCheckedChange={(v) => handleSaveSettings({ emailNotifications: v })} />
                     </CardContent>
                   </Card>
                 </div>
@@ -772,8 +774,8 @@ export default function PerfilPage() {
                   </h3>
                   <Card className="bg-card border-border overflow-hidden p-0 gap-0">
                     <SettingsRow icon={Shield} label="Verificar telefone" description={user.phone ? `+55 ${user.phone}` : undefined} value="✓ ok" />
-                    <SettingsRow icon={Ruler}  label="Raio de busca"     description="Distância máxima de itens" value="10 km" />
-                    <SettingsRow icon={Globe}  label="Idioma"            value="Português BR" />
+                    <SettingsRow icon={Ruler} label="Raio de busca" description="Distância máxima de itens" value="10 km" />
+                    <SettingsRow icon={Globe} label="Idioma" value="Português BR" />
                   </Card>
                 </div>
 
@@ -783,16 +785,37 @@ export default function PerfilPage() {
                   </h3>
                   <Card className="bg-card border-border overflow-hidden p-0 gap-0">
                     <SettingsRow icon={FileText} label="Termos de uso" />
-                    <SettingsRow icon={Shield}   label="Política de privacidade" />
-                    <SettingsRow icon={Star}     label="Avaliar o app" />
-                    <SettingsRow icon={Info}     label="Versão do app" value="2.1.4" />
+                    <SettingsRow icon={Shield} label="Política de privacidade" />
+                    <SettingsRow icon={Star} label="Avaliar o app" />
+                    <SettingsRow icon={Info} label="Versão do app" value="2.1.4" />
                   </Card>
                 </div>
 
                 <Separator />
 
                 <div className="space-y-3 pb-4">
-                  <Button variant="outline" className="w-full" onClick={() => router.push("/auth/logout")}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/api/auth/logout", {
+                          method: "POST",
+                        });
+
+                        if (!res.ok) {
+                          throw new Error();
+                        }
+
+                        toast.success("Logout realizado com sucesso!");
+
+                        router.push("/login");
+                        router.refresh();
+                      } catch {
+                        toast.error("Erro ao sair da conta.");
+                      }
+                    }}
+                  >
                     <LogOut size={15} className="mr-2" />
                     Sair da conta
                   </Button>

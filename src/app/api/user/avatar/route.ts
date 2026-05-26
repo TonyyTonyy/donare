@@ -1,5 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+
+import { getUserIdFromRequest } from "@/lib/auth";
+
 export async function POST(req: NextRequest) {
   try {
     /* const session = await auth();
@@ -7,7 +10,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     } */
 
-      const userId = "cmofytoqj00003j6tdv6lipwy"
+      const userId = await getUserIdFromRequest(req)
+
 
     const formData = await req.formData();
     const file = formData.get("avatar") as File | null;
@@ -44,8 +48,14 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ avatar: updated.avatar });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[POST /api/user/avatar]", err);
+
+    if (String(err?.message ?? "").includes("Não autenticado")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
+
 }
