@@ -7,10 +7,10 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-background bg-gradient-mix">
+  <div className="flex min-h-dvh items-center justify-center bg-background bg-gradient-mix">
       <div
         className={cn(
-          "relative flex w-full flex-col overflow-hidden",
+          "relative flex w-full max-w-[650px] flex-col overflow-hidden",
           "h-dvh max-h-[932px]",
           "bg-background",
           "sm:rounded-[2.0rem]",

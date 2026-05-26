@@ -75,7 +75,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4 py-10 relative overflow-hidden">
+    <div className="min-h-[100vh] flex items-center justify-center px-4 py-10 relative overflow-hidden">
       {/* Background */}
       <div aria-hidden className="absolute inset-0 bg-gradient-mix" />
       <div

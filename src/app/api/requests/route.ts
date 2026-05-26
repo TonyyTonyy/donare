@@ -12,6 +12,8 @@ export async function POST(request: NextRequest) {
 
     const requesterId = await getUserIdFromRequest(request)
 
+    console.log(requesterId)
+
 
     const body = await request.json();
     const { productId, message } = body;
